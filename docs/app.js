@@ -1,6 +1,6 @@
 // --- Utility ---
 function addDays(d, n) { const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd; }
-// btoaは非ASCIIに弱いのでUTF-8経由でエンコードしてID化
+// 非ASCII対応のID生成
 function hashId(str) { return btoa(unescape(encodeURIComponent(str))).slice(0, 24); }
 
 // --- Storage ---
@@ -9,17 +9,14 @@ let progress = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 function saveProgress() { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }
 function resetProgress() { progress = {}; saveProgress(); }
 
-// --- SM-2（間隔反復アルゴリズム） ---
+// --- SM-2 ---
 function nextSchedule(prev) {
     const p = Object.assign({ ef: 2.5, rep: 0, interval: 0 }, prev || {});
     return function (grade) {
-        // EF更新
         let EF = p.ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
         EF = Math.max(EF, 1.3);
-        // 間隔・反復回数
-        let rep = p.rep;
-        let interval = 1;
-        if (grade < 3) { rep = 0; interval = 1; } // 忘れた → 短期再出題
+        let rep = p.rep, interval = 1;
+        if (grade < 3) { rep = 0; interval = 1; }
         else {
             rep = p.rep + 1;
             if (rep === 1) interval = 1;
@@ -42,7 +39,6 @@ const elA = document.getElementById('answer');
 const elAW = document.getElementById('answer-wrap');
 const elStart = document.getElementById('btn-start');
 const elRandom = document.getElementById('btn-random');
-const elFile = document.getElementById('file-input');
 const elReset = document.getElementById('btn-reset');
 const elList = document.getElementById('card-list');
 const elSearch = document.getElementById('search');
@@ -69,7 +65,7 @@ function calcAccuracy() {
 }
 function isDue(card) {
     const p = progress[card.id];
-    if (!p || !p.nextDue) return true; // 未学習は出題対象
+    if (!p || !p.nextDue) return true; // 未学習は出題
     const due = new Date(p.nextDue);
     const now = new Date(); now.setHours(0, 0, 0, 0);
     return due <= now;
@@ -101,7 +97,7 @@ function grade(grade) {
     const prev = progress[c.id] || { ef: 2.5, rep: 0, interval: 0, lastGrades: [] };
     const sched = nextSchedule(prev)(grade);
     progress[c.id] = Object.assign({}, prev, sched);
-    progress[c.id].lastGrades = (prev.lastGrades || []).slice(-99); // 直近100件保持
+    progress[c.id].lastGrades = (prev.lastGrades || []).slice(-99);
     progress[c.id].lastGrades.push(grade);
     saveProgress();
     currentIndex++; showCurrent(); renderStats();
@@ -135,56 +131,46 @@ function renderList(list) {
     });
 }
 
-// --- CSV loading（docs/data/勉強用.csv） ---
+// --- CSV loading（固定パス） ---
+const CSV_PATH = './data/勉強用.csv';
+
 async function loadCSVFromPath(path) {
     try {
-        const res = await fetch(path);
+        // キャッシュバスターを追加
+        const cacheBuster = `cb=${Date.now()}`;
+        const url = path + (path.includes('?') ? '&' : '?') + cacheBuster;
+
+        const res = await fetch(url, { cache: 'no-store' }); // 開発時はキャッシュ無効
         if (!res.ok) throw new Error(`CSV取得失敗: ${res.status}`);
         const text = await res.text();
         const parsed = Papa.parse(text, { skipEmptyLines: true });
         let data = parsed.data;
 
-        // 先頭行がヘッダーっぽい場合は除外（例: 用語,説明,タグ）
-        if (data.length && String(data[0][0]).includes('用語')) {
-            data = data.slice(1);
-        }
+        // 先頭行が「用語」等のヘッダーなら除外
+        if (data.length && String(data[0][0]).includes('用語')) data = data.slice(1);
 
         cards = data.map(row => {
             const question = String(row[0] || '').trim();
             const answer = String(row[1] || '').trim();
             const tags = String(row[2] || '').trim();
-            const id = hashId(question);
+            const id = btoa(unescape(encodeURIComponent(question))).slice(0, 24);
             return { id, q: question, a: answer, tags };
         }).filter(c => c.q && c.a);
 
         renderStats();
         renderList(cards);
+        // 最初のカードを表示
+        const elAW = document.getElementById('answer-wrap');
+        elAW.open = false;
+        const elQ = document.getElementById('question');
+        const elA = document.getElementById('answer');
+        if (cards.length) { elQ.textContent = cards[0].q; elA.textContent = cards[0].a; }
     } catch (e) {
-        elQ.textContent = 'CSVの読み込みに失敗しました。パスやGitHub Pagesの設定をご確認ください。';
-        elA.textContent = String(e);
+        console.error(e);
+        document.getElementById('question').textContent = 'CSVの読み込みに失敗しました。';
+        document.getElementById('answer').textContent = String(e);
     }
 }
 
-// --- Local file upload（ブラウザから差し替え可能） ---
-elFile.addEventListener('change', async (ev) => {
-    const file = ev.target.files[0];
-    if (!file) return;
-    const text = await file.text();
-    const parsed = Papa.parse(text, { skipEmptyLines: true });
-    let data = parsed.data;
-    if (data.length && String(data[0][0]).includes('用語')) data = data.slice(1);
-
-    cards = data.map(row => {
-        const question = String(row[0] || '').trim();
-        const answer = String(row[1] || '').trim();
-        const tags = String(row[2] || '').trim();
-        const id = hashId(question);
-        return { id, q: question, a: answer, tags };
-    }).filter(c => c.q && c.a);
-
-    renderStats();
-    renderList(cards);
-});
-
-// --- Boot ---
-loadCSVFromPath('./data/勉強用.csv');
+// 起動時に読み込み
+loadCSVFromPath(CSV_PATH);

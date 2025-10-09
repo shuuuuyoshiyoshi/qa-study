@@ -6,11 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>一問一答 学習アプリ</title>
     <meta name="description" content="CSVから一問一答カードを作り、間隔反復（SM-2）で復習する個人学習用アプリ" />
-    manifest.json
+
+    <!-- PWA manifest -->
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0ea5e9">
-    style.css
-    <!-- PapaParse（CSVパース用／CDN読み込みなのでインストール不要） -->
-    https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js</script>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- PapaParse（CDN）-->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+    <!-- アプリ本体 -->
+    <script src="app.js" defer></script>
 </head>
 
 <body>
@@ -27,9 +35,6 @@
         <section class="controls">
             <button id="btn-start">今日の復習を開始</button>
             <button id="btn-random">ランダム出題</button>
-            <label class="file-label">
-                CSV差し替え: <input type="file" id="file-input" accept=".csv" />
-            </label>
             <button id="btn-reset">進捗をリセット</button>
         </section>
 
@@ -40,9 +45,9 @@
                 <div class="answer" id="answer"></div>
             </details>
             <div class="grade">
-                <button class="grade-btn bad" data-grade="1">忘れた</button>
+                <button class="grade-btn bad" data-grade="1">自信なし</button>
                 <button class="grade-btn mid" data-grade="3">迷った</button>
-                <button class="grade-btn good" data-grade="5">覚えていた</button>
+                <button class="grade-btn good" data-grade="5">バッチリ</button>
             </div>
         </section>
 
@@ -60,9 +65,9 @@
         </small>
     </footer>
 
-    app.js</script>
+    <!-- 開発中はSWを登録しない（キャッシュ混乱回避） -->
     <script>
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && !['localhost', '127.0.0.1'].includes(location.hostname)) {
             navigator.serviceWorker.register('./sw.js');
         }
     </script>

@@ -6,4 +6,4 @@ CSV（用語,説明[,タグ]）からカードを生成し、SM-2で復習しま
 - 公開: GitHub Pages（main / docs）
 
 ## 開発メモ
-ローカル直開きだと `fetch` がブロックされます。VS Codeの「Live Server」などで `docs/` をルートにすると楽です。a
+ローカル直開きだと `fetch` がブロックされます。VS Codeの「Live Server」などで `docs/` をルートにすると楽です。
