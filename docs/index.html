@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>一問一答 学習アプリ</title>
+    <meta name="description" content="CSVから一問一答カードを作り、間隔反復（SM-2）で復習する個人学習用アプリ" />
+    manifest.json
+    <meta name="theme-color" content="#0ea5e9">
+    style.css
+    <!-- PapaParse（CSVパース用／CDN読み込みなのでインストール不要） -->
+    https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js</script>
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>一問一答（CSV学習）</h1>
+        <div class="stats">
+            <span id="stat-total">総カード: -</span>
+            <span id="stat-due">今日の復習: -</span>
+            <span id="stat-accuracy">正答率: -</span>
+        </div>
+    </header>
+
+    <main>
+        <section class="controls">
+            <button id="btn-start">今日の復習を開始</button>
+            <button id="btn-random">ランダム出題</button>
+            <label class="file-label">
+                CSV差し替え: <input type="file" id="file-input" accept=".csv" />
+            </label>
+            <button id="btn-reset">進捗をリセット</button>
+        </section>
+
+        <section id="card" class="card">
+            <div class="question" id="question">CSVを読み込み中...</div>
+            <details id="answer-wrap">
+                <summary>答えを表示</summary>
+                <div class="answer" id="answer"></div>
+            </details>
+            <div class="grade">
+                <button class="grade-btn bad" data-grade="1">忘れた</button>
+                <button class="grade-btn mid" data-grade="3">迷った</button>
+                <button class="grade-btn good" data-grade="5">覚えていた</button>
+            </div>
+        </section>
+
+        <section class="list">
+            <h2>カード一覧</h2>
+            <input id="search" placeholder="検索（用語／説明）" />
+            <ul id="card-list"></ul>
+        </section>
+    </main>
+
+    <footer>
+        <small>
+            学習進捗はブラウザの <code>localStorage</code> に保存されます。<br>
+            CSVは <code>docs/data/勉強用.csv</code> を差し替えてください（UTF-8推奨）。
+        </small>
+    </footer>
+
+    app.js</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
+</body>
+
+</html>
