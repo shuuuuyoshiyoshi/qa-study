@@ -87,3 +87,4 @@ MVP,Minimum Viable Productの略。最小限の機能を持つ製品やサービ
 RFI,Request For Informationの略。情報提供依頼書のこと。事前調査の段階で活用される。発注先の候補をある程度絞り込んでおくために発行するドキュメント。
 RFP,Request For Proposalの略。提案依頼書のこと。具体的な提案を求めたい企業に対して発行する。RFIでベンダーをある程度まで絞り込んだうえで発行する。
 RFQ,Request For Quotationの略。見積依頼書のこと。詳細な見積もりを依頼する際に発行する。RFIやRFPでベンダーを絞り込んだうえで発行する。
+V2V,Virtual to Virtualの略。仮想マシンから別の仮想マシンへデータやアプリケーションを移行するプロセス。
