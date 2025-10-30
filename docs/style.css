@@ -107,9 +107,28 @@ button:hover {
 }
 
 #card-list li {
-    padding: 8px;
+    padding: 12px 8px;
     border-bottom: 1px solid #e5e7eb;
     color: var(--fg);
+}
+
+/* 用語一覧：用語（太字）と意味（控えめな色） */
+.list-term {
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--fg);
+}
+
+.list-meaning {
+    color: #374151; /* 説明の色 */
+    line-height: 1.45;
+    white-space: pre-wrap;
+    margin-bottom: 6px;
+}
+
+.list-tags {
+    font-size: 12px;
+    color: var(--muted);
 }
 
 input#search {

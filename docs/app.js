@@ -121,14 +121,32 @@ elSearch.addEventListener('input', () => {
 
 // --- List ---
 function renderList(list) {
+    const items = list || cards;
     elList.innerHTML = '';
-    list.forEach(c => {
+
+    for (const c of items) {
         const li = document.createElement('li');
-        const p = progress[c.id];
-        const dueStr = p && p.nextDue ? new Date(p.nextDue).toLocaleDateString('ja-JP') : '未';
-        li.innerHTML = `<strong>${c.q}</strong><br><span class="muted">次回: ${dueStr}</span>`;
+
+        const term = document.createElement('div');
+        term.className = 'list-term';
+        term.textContent = c.q || '(無題)';
+
+        const meaning = document.createElement('div');
+        meaning.className = 'list-meaning';
+        meaning.textContent = c.a || '';
+
+        li.appendChild(term);
+        li.appendChild(meaning);
+
+        if (c.tags && c.tags.length) {
+            const tags = document.createElement('div');
+            tags.className = 'list-tags';
+            tags.textContent = c.tags.join(', ');
+            li.appendChild(tags);
+        }
+
         elList.appendChild(li);
-    });
+    }
 }
 
 // --- CSV loading（固定パス） ---
